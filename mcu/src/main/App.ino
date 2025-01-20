@@ -8,22 +8,17 @@
 #include "config.h"
 BluetoothSerial SerialBT;
 
-// PS3 Controller related functions.
-
 #include "Arduino.h"
 
 #include "App.h"
-//#include <Ps3Controller.h>
 #include "config.h"
-//#include "InputDevice.h"
 #include <string>
 #include <cstdlib>
-// PS3 Controller related functions.
+
 App::App(){
   return;
 }
 void App::setup(){ 
-    //Ps3.attachOnConnect(this->onConnect);
     SerialBT.begin("Balancio Bluetooth");
 }
 
@@ -61,8 +56,4 @@ float App::get_pitch_command(float read){
 float App::get_yaw_command(float prev_target,float read){
     float targetYaw = prev_target - read;
     return targetYaw;
-} 
-bool App:: x_button_pressed(void){
-  //bool x_down = Ps3.event.button_down.cross;
-  return false;
 } 

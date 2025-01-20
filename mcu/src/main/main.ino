@@ -29,8 +29,6 @@
 #include "imu.h"
 #include "timer.h"
 #include "Wire.h"
-#include "commander.h"
-#include "InputDevice.h"
 #include "App.h"
 float currentAngle, targetAngle = 0.0, angle_limit = 0.5;
 float yaw = 0.0, targetYaw = 0.0, yawCommand = 0.0;
@@ -40,18 +38,16 @@ float fwd = 0;
 float rot = 0;
 int time_ctr1, time_ctr2;
 int delay_startup_time = 2000;
-bool stop_command = false;
 bool x_down;
 
-String control_algo(CONTROL_ALGO);
 controller_data_t pitch_controller_data = {KP, KI, KD};
 controller_data_t yaw_controller_data = {KP_YAW, KI_YAW, KD_YAW};
 
-Controller *yaw_control;
-Controller *pitch_control;
-std::vector<float> pwm;
-std::vector<float> rot_v;
-InputDevice* inp_device; 
+PID *yaw_control;
+PID *pitch_control;
+float pwm;
+float rot_v;
+App* inp_device; 
 float p_y[2];
 
 // ISR at 1/LOOP_PERIOD H
@@ -63,12 +59,7 @@ void setup()
   motor_init();
   // IMU init
   imu_setup();
-  if (CONTROLLER_DEVICE == "APP") { //modificar de config.h
-        inp_device = new App();
-        }
-  else if(CONTROLLER_DEVICE == "PS3" ){
-        inp_device = new PS3Joystick();
-    }  
+  inp_device = new App();
   // Bluetooth init
   inp_device->setup();
 
@@ -78,12 +69,11 @@ void setup()
   time_ctr2 = millis();
 
   // Controllers init
-  pitch_control = Controller::init_algo(control_algo, pitch_controller_data);
-  yaw_control = Controller::init_algo("PID", yaw_controller_data);
+  pitch_control = new PID(pitch_controller_data.kp, pitch_controller_data.ki, pitch_controller_data.kd, 5.0);
+  yaw_control = new PID(yaw_controller_data.kp, yaw_controller_data.ki, yaw_controller_data.kd, 5.0);
 
   // Angle initialization
   currentAngle = -getAccelPitch();
-
 }
 
 
@@ -98,19 +88,11 @@ void loop()
 
   if (controlFlag)
   {
-    // Get if X button was pressed
-    x_down = inp_device->x_button_pressed();
-    if (x_down and (millis() - time_ctr2) >= 500)
-    {
-      stop_command = abs(stop_command - 1);
-      time_ctr2 = millis();
-    }
-
     // Get pitch and yaw angles.
     currentAngle = updatePitch(currentAngle);
     yaw = updateYaw(yaw);
 
-    if (stop_command || (currentAngle > angle_limit) || (currentAngle < -angle_limit))
+    if ((currentAngle > angle_limit) || (currentAngle < -angle_limit))
     {
       // Stop motors
       stop_motor();
@@ -119,40 +101,25 @@ void loop()
       targetYaw = yaw;
 
       // Reset PID
-      if (control_algo.equals("PID"))
-      {
-        ((PID *)pitch_control)->reset(0.0);
-      }
-
-      ((PID *)yaw_control)->reset(targetYaw);
+      pitch_control->reset(0.0);
+      yaw_control->reset(targetYaw);
     }
     else
     {
-      // Pitch control.
-      if (control_algo.equals("PID"))
-      {
-        // PID control.
-        pwm = pitch_control->update(currentAngle, targetAngle);
-        pwmL = pwm.at(0);
-        pwmR = pwm.at(0);
-      }
-      else if (control_algo.equals("RL"))
-      {
-        // RL control.
-        pwm = pitch_control->update(currentAngle, targetAngle);
-        pwmL = pwm.at(0);
-        pwmR = pwm.at(1);
-      }
+      // Pitch control
 
-      // Yaw control.
+      // PID control
+      pwm = pitch_control->update(currentAngle, targetAngle);
+      pwmL = pwm;
+      pwmR = pwm;
+
+      // Yaw control
       rot_v = yaw_control->update(yaw, targetYaw);
-      rot = rot_v.at(0);
+      rot = rot_v;
 
       // Pass PWM commands to motors.
       L_motor(pwmL + int(rot)); // -255 to 255
       R_motor(pwmR - int(rot)); // -255 to 255
-
-
     }
     // Print relevant data.
     if (true)
@@ -189,9 +156,6 @@ int main() {
   while (true) {
     loop();
   }
-
-  // Cleanup memory
-  delete inp_device;
 
   return 0;
 }

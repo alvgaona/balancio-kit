@@ -6,13 +6,12 @@
 */
 
 // Defines
-#define IN1 19
-#define IN2 18
-#define ENA 17
-
-#define IN3 0
-#define IN4 2
-#define ENB 4
+#define ENA 23
+#define IN1 22
+#define IN2 21
+#define IN3 19
+#define IN4 18
+#define ENB 5
 
 // Global Function Protoyes
 /**

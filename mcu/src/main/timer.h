@@ -7,6 +7,6 @@
 
 // Global Function Prototypes
 /**
- * Timer initialization and configuration at 100 Mhz.
+ * Timer initialization and configuration at 100 hz.
  */
 void timer_init(void);

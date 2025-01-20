@@ -10,11 +10,8 @@
 #define App_h
 
 #include "config.h"
-#include "InputDevice.h"
 
-// PS3 Controller related functions.
-
-class App : public InputDevice {
+class App {
     public: 
 
         App();
@@ -23,7 +20,8 @@ class App : public InputDevice {
         */
         void setup(void);
 
-
+        static  void onConnect();
+        
         /**
         * Return by interface in the array that was indicated as parameter what was sent from the app. Format: [pitch,yaw].
         */
@@ -43,13 +41,7 @@ class App : public InputDevice {
         * @return New commanded yaw.
         */
         float get_yaw_command(float prev_target,float read);
-        
-        /**
-        * Checks  if the x button is pressed (Currently not implemented here, but it is in the PS3 controller).
-        * 
-        * @return True if the x button is pressed. False if not. (Currentyl returning only false)
-        */
-        bool x_button_pressed(void);
+
 };
 #endif
 
