@@ -16,18 +16,18 @@ BluetoothSerial SerialBT;
 #include <cstdlib>
 
 App::App(){
-  return;
-}
-void App::setup(){ 
-    SerialBT.begin("Balancio Bluetooth");
+    return;
 }
 
+void App::setup(){
+    SerialBT.begin("Balancio Bluetooth");
+}
 
 void App::parse_input(float pitch_yaw[2]){
     char mensajeApp[10] = {'0','0','0','0','0','0','0','0','0','0'}; // Creo stringbuilder donde voy a almacenar el mensaje recibido de la app
     char recibido = 'A'; // inicializo char para ir recibiendo los valores que envía la app
     int index = 0; // inicializo variable de donde agrego en el stringbuilder
-    char type; 
+    char type;
     if (SerialBT.available()){
         type = SerialBT.read();
 
@@ -40,7 +40,7 @@ void App::parse_input(float pitch_yaw[2]){
         index++;
     }
     //me fijo si tengo que actualizar el pitch o el yaw
-    if (type== 'P'){ 
+    if (type== 'P'){
         pitch_yaw[0] = (atof(mensajeApp)-128.775)/126.225*3.2;
     }
     else if (type== 'Y'){
@@ -49,11 +49,17 @@ void App::parse_input(float pitch_yaw[2]){
 }
 
 float App::get_pitch_command(float read){
-    float targetAngle = read * 0.05 + STATIC_ANGLE;
-    return targetAngle;
-} 
+    return read * 0.05 + STATIC_ANGLE;
+}
 
 float App::get_yaw_command(float prev_target,float read){
-    float targetYaw = prev_target - read;
-    return targetYaw;
-} 
+    return prev_target - read;
+}
+
+void stopped_command(bool has_fallen){
+    if(has_fallen){
+        SerialBT.println("DOWN");
+    }else{
+        SerialBT.println("UP");
+    }
+}

@@ -5,8 +5,12 @@
 ======================================================================
 */
 
-// Global Function Prototypes
+#ifndef TIMER_H
+#define TIMER_H
+
 /**
  * Timer initialization and configuration at 100 hz.
  */
 void timer_init(void);
+
+#endif

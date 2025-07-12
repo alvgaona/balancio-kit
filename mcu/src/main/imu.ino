@@ -65,7 +65,7 @@ float newYaw;
 void imu_setup(void)
 {
   // join I2C bus (I2Cdev library doesn't do this automatically)
-  Wire.begin(SDA, SCL, 400000);
+  Wire.begin(PIN_SDA, PIN_SCL, 400000);
 
   // initialize device
   Serial.println(F("Initializing I2C devices..."));
@@ -86,7 +86,16 @@ void imu_setup(void)
 
 void getAccelGyro(float *ay, float *az, float *gx, float *gz)
 {
-  mpu.getMotion6(&ax_b, &ay_b, &az_b, &gx_b, &gy_b, &gz_b); // gyro (+/- 250 deg/s) accel (+/- 2g)
+  // gyro (+/- 250 deg/s) accel (+/- 2g)
+  #ifdef NEW_BOARD
+  // Rotate coordinates (swap y and z, invert y) to compensate for rotated MPU6050
+  mpu.getMotion6(&ax_b, &az_b, &ay_b, &gx_b, &gz_b, &gy_b);
+  ay_b *= -1.0;
+  gy_b *= -1.0;
+  #else
+  mpu.getMotion6(&ax_b, &ay_b, &az_b, &gx_b, &gy_b, &gz_b); 
+  #endif
+    
   ay[0] = 4 * (ay_b / 65535.0);                             // g
   az[0] = 4 * (az_b / 65535.0);                             // g
   gx[0] = 2 * 250 * (gx_b / (65535.0));                     // deg/s

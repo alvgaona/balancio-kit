@@ -4,15 +4,11 @@
  This code is licensed under MIT license (see LICENSE.txt for details)
 ======================================================================
 */
-#pragma once
-
-#ifndef App_h
-#define App_h
-
-#include "config.h"
+#ifndef APP_H
+#define APP_H
 
 class App {
-    public: 
+    public:
 
         App();
         /**
@@ -21,7 +17,7 @@ class App {
         void setup(void);
 
         static  void onConnect();
-        
+
         /**
         * Return by interface in the array that was indicated as parameter what was sent from the app. Format: [pitch,yaw].
         */
@@ -29,19 +25,19 @@ class App {
 
         /**
         * Adjusts the read pitch and returns it .
-        * 
+        *
         * @return Pitch target
         */
         float get_pitch_command(float read_n);
 
         /**
         * Get the commanded yaw value from the PS3 joystick.
-        * 
+        *
         * @param  {float} prev_target : Previous commanded yaw.
         * @return New commanded yaw.
         */
-        float get_yaw_command(float prev_target,float read);
+        float get_yaw_command(float prev_target, float read);
 
+        void stopped_command(bool has_fallen);
 };
 #endif
-

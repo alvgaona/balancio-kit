@@ -5,11 +5,9 @@
 ======================================================================
 */
 
-// Defines
-#define SDA 26
-#define SCL 27
+#ifndef IMU_H
+#define IMU_H
 
-// Global function prototypes
 /**
  * Inertial measurement unit (IMU) configuration and initialization.
  */
@@ -29,7 +27,7 @@ void getAccelGyro(float *ay, float *az, float *gx, float *gz);
  * Get robot's pitch based on accelerometer data.
  *
  */
-float getAccelPitch();
+float getAccelPitch(void);
 
 /**
  * Estimate robot's pitch angle (in radians) based on accelerometer and
@@ -47,3 +45,5 @@ float updatePitch(float currentAngle);
  * @return {float}            : New updated yaw angle (in radians).
  */
 float updateYaw(float currentYaw);
+
+#endif

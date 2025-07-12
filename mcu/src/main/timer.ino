@@ -8,8 +8,7 @@
 #include "timer.h"
 #include "config.h"
 
-void timer_init(void)
-{
+void timer_init(void) {
    hw_timer_t *timer = NULL;
    portMUX_TYPE timerMux = portMUX_INITIALIZER_UNLOCKED;
 
@@ -19,7 +18,6 @@ void timer_init(void)
    timerAttachInterrupt(timer, &onTime, true);
 
    // Sets timer at 100Hz.
-   // timerAlarmWrite(timer, 10000, true);
    int scaler = 1000000 * LOOP_PERIOD;
    timerAlarmWrite(timer, scaler, true);
    timerAlarmEnable(timer);

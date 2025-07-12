@@ -30,132 +30,130 @@
 #include "timer.h"
 #include "Wire.h"
 #include "App.h"
-float currentAngle, targetAngle = 0.0, angle_limit = 0.5;
-float yaw = 0.0, targetYaw = 0.0, yawCommand = 0.0;
-int pwmL = 0, pwmR = 0;
 volatile bool controlFlag = false;
-float fwd = 0;
-float rot = 0;
-int time_ctr1, time_ctr2;
-int delay_startup_time = 2000;
-bool x_down;
 
-controller_data_t pitch_controller_data = {KP, KI, KD};
-controller_data_t yaw_controller_data = {KP_YAW, KI_YAW, KD_YAW};
+float currentPitch = 0.0, targetPitch = 0.0;
+const float pitchLimit = 0.5;
 
-PID *yaw_control;
-PID *pitch_control;
+float currentYaw = 0.0, targetYaw = 0.0;
+
+int pwmL = 0, pwmR = 0;
+int timeControl;
+bool prevState = false;
+bool currState = false;
+
+PID *yawControl;
+PID *pitchControl;
 float pwm;
-float rot_v;
-App* inp_device; 
-float p_y[2];
+float yawOutput;
+App* inputDevice; 
+float inputPoint[2];
 
-// ISR at 1/LOOP_PERIOD H
-void setup()
-{
+bool enabled = false;
+
+void setup() {
   // UART PC connection
   Serial.begin(115200);
   // Motor initialization
   motor_init();
   // IMU init
   imu_setup();
-  inp_device = new App();
+  inputDevice = new App();
   // Bluetooth init
-  inp_device->setup();
+  inputDevice->setup();
 
   // Timer init. (ISR at 1/LOOP_PERIOD Hz)
   timer_init();
-  time_ctr1 = micros();
-  time_ctr2 = millis();
 
   // Controllers init
-  pitch_control = new PID(pitch_controller_data.kp, pitch_controller_data.ki, pitch_controller_data.kd, 5.0);
-  yaw_control = new PID(yaw_controller_data.kp, yaw_controller_data.ki, yaw_controller_data.kd, 5.0);
+  pitchControl = new PID(KP_PITCH, KI_PITCH, KD_PITCH, 5.0);
+  yawControl = new PID(KP_YAW, KI_YAW, KD_YAW, 5.0);
 
   // Angle initialization
-  currentAngle = -getAccelPitch();
+  currentPitch = -getAccelPitch();
+  timeControl = micros();
+
+  pinMode(PIN_LEDR, OUTPUT);
+  pinMode(PIN_LEDG, OUTPUT);
+  pinMode(PIN_LEDB, OUTPUT);
+  pinMode(PIN_ENABLE_BUTTON, INPUT_PULLUP);
 }
 
-
 // ISR at 1/LOOP_PERIOD Hz
-void IRAM_ATTR onTime()
-{
+void IRAM_ATTR onTime() {
   controlFlag = true;
 }
 
-void loop()
-{
-
-  if (controlFlag)
-  {
-    // Get pitch and yaw angles.
-    currentAngle = updatePitch(currentAngle);
-    yaw = updateYaw(yaw);
-
-    if ((currentAngle > angle_limit) || (currentAngle < -angle_limit))
-    {
-      // Stop motors
-      stop_motor();
-
-      // Reset yaw command
-      targetYaw = yaw;
-
-      // Reset PID
-      pitch_control->reset(0.0);
-      yaw_control->reset(targetYaw);
-    }
-    else
-    {
-      // Pitch control
-
-      // PID control
-      pwm = pitch_control->update(currentAngle, targetAngle);
-      pwmL = pwm;
-      pwmR = pwm;
-
-      // Yaw control
-      rot_v = yaw_control->update(yaw, targetYaw);
-      rot = rot_v;
-
-      // Pass PWM commands to motors.
-      L_motor(pwmL + int(rot)); // -255 to 255
-      R_motor(pwmR - int(rot)); // -255 to 255
-    }
-    // Print relevant data.
-    if (true)
-    {
-        Serial.print("  targetAngle: ");
-        Serial.print(targetAngle);
-        Serial.print("  targetYaw: ");
-        Serial.print(targetYaw);
-        Serial.print(" pitch: ");
-        Serial.print(currentAngle);
-        Serial.print("  PWM: ");
-        Serial.print(pwmL);
-        Serial.print(" Loop time: ");
-        Serial.println(micros() - time_ctr1);
-      
-        time_ctr1 = micros();
-    }
-    controlFlag = false;
+void loop() {
+  if (!controlFlag){
+    return;
   }
-  else
-  {
+  controlFlag = false;
+
+  if (digitalRead(PIN_ENABLE_BUTTON) == 0) {
+    enabled = !enabled;
+    delay(200);
+  }
+  if (!enabled) {
+    stop_motor();
+    digitalWrite(PIN_LEDR, LOW);
     return;
   }
   
-  inp_device->parse_input(p_y);
+  // Get pitch and yaw angles.
+  currentPitch = updatePitch(currentPitch);
+  currentYaw = updateYaw(currentYaw);
+
+  if (currentPitch > pitchLimit || currentPitch < -pitchLimit) {
+    currState = false;
+    stop_motor();
+    targetYaw = currentYaw;
+
+    // Reset PID
+    pitchControl->reset(0.0);
+    yawControl->reset(targetYaw);
+    digitalWrite(PIN_LEDR, HIGH);
+    
+  } else {
+    currState = true;
+
+    // Pitch control
+    pwm = pitchControl->update(currentPitch, targetPitch);
+    pwmL = pwm;
+    pwmR = pwm;
+
+    // Yaw control
+    yawOutput = yawControl->update(currentYaw, targetYaw);
+
+    // Pass PWM commands to motors.
+    L_motor(pwmL + int(yawOutput)); // -255 to 255
+    R_motor(pwmR - int(yawOutput)); // -255 to 255
+
+    digitalWrite(PIN_LEDR, LOW);
+  }
+  if (true) {
+    // Print relevant data.
+    Serial.print("  targetPitch: ");
+    Serial.print(targetPitch);
+    Serial.print("  targetYaw: ");
+    Serial.print(targetYaw);
+    Serial.print(" pitch: ");
+    Serial.print(currentPitch);
+    Serial.print(" yaw: ");
+    Serial.print(currentYaw);
+    Serial.print(" Loop time: ");
+    Serial.println(micros() - timeControl);
+  
+    timeControl = micros();
+  }
+  inputDevice->parse_input(inputPoint);
 
   // Get joystick commands.
-  targetAngle = inp_device->get_pitch_command(p_y[0]);
-  targetYaw = inp_device->get_yaw_command(targetYaw,p_y[1]);
-}
-int main() {
-  setup();
+  targetPitch = inputDevice->get_pitch_command(inputPoint[0]);
+  targetYaw = inputDevice->get_yaw_command(targetYaw,inputPoint[1]);
 
-  while (true) {
-    loop();
+  if(prevState != currState){
+    stopped_command(currState);
   }
-
-  return 0;
+  prevState = currState;
 }

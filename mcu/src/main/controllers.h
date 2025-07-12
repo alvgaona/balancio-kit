@@ -5,19 +5,9 @@
 ======================================================================
 */
 
-#ifndef controllers_h
-#define controllers_h
+#ifndef CONTROLLERS_H
+#define CONTROLLERS_H
 #include "config.h"
-
-/**
- * Struct datatype to store PID related parameters.
- */
-struct controller_data_t
-{
-    float kp;
-    float ki;
-    float kd;
-};
 
 class PID
 {

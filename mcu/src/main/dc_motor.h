@@ -4,14 +4,8 @@
  This code is licensed under MIT license (see LICENSE.txt for details)
 ======================================================================
 */
-
-// Defines
-#define ENA 23
-#define IN1 22
-#define IN2 21
-#define IN3 19
-#define IN4 18
-#define ENB 5
+#ifndef DC_MOTOR_H
+#define DC_MOTOR_H
 
 // Global Function Protoyes
 /**
@@ -69,3 +63,5 @@ void R_motor(int pwm);
  *                     Negative (-) values --> Backward
  */
 void L_motor(int pwm);
+
+#endif
