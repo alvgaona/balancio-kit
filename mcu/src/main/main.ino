@@ -46,7 +46,7 @@ PID *yawControl;
 PID *pitchControl;
 float pwm;
 float yawOutput;
-App* inputDevice; 
+App* inputDevice;
 float inputPoint[2];
 
 bool enabled = false;
@@ -55,15 +55,15 @@ void setup() {
   // UART PC connection
   Serial.begin(115200);
   // Motor initialization
-  motor_init();
+  motorInit();
   // IMU init
-  imu_setup();
+  imuSetup();
   inputDevice = new App();
   // Bluetooth init
   inputDevice->setup();
 
   // Timer init. (ISR at 1/LOOP_PERIOD Hz)
-  timer_init();
+  timerInit();
 
   // Controllers init
   pitchControl = new PID(KP_PITCH, KI_PITCH, KD_PITCH, 5.0);
@@ -95,25 +95,25 @@ void loop() {
     delay(200);
   }
   if (!enabled) {
-    stop_motor();
+    stopMotor();
     digitalWrite(PIN_LEDR, LOW);
     return;
   }
-  
+
   // Get pitch and yaw angles.
   currentPitch = updatePitch(currentPitch);
   currentYaw = updateYaw(currentYaw);
 
   if (currentPitch > pitchLimit || currentPitch < -pitchLimit) {
     currState = false;
-    stop_motor();
+    stopMotor();
     targetYaw = currentYaw;
 
     // Reset PID
     pitchControl->reset(0.0);
     yawControl->reset(targetYaw);
     digitalWrite(PIN_LEDR, HIGH);
-    
+
   } else {
     currState = true;
 
@@ -126,8 +126,8 @@ void loop() {
     yawOutput = yawControl->update(currentYaw, targetYaw);
 
     // Pass PWM commands to motors.
-    L_motor(pwmL + int(yawOutput)); // -255 to 255
-    R_motor(pwmR - int(yawOutput)); // -255 to 255
+    leftMotor(pwmL + int(yawOutput)); // -255 to 255
+    rightMotor(pwmR - int(yawOutput)); // -255 to 255
 
     digitalWrite(PIN_LEDR, LOW);
   }
@@ -143,17 +143,17 @@ void loop() {
     Serial.print(currentYaw);
     Serial.print(" Loop time: ");
     Serial.println(micros() - timeControl);
-  
+
     timeControl = micros();
   }
-  inputDevice->parse_input(inputPoint);
+  inputDevice->parseInput(inputPoint);
 
   // Get joystick commands.
-  targetPitch = inputDevice->get_pitch_command(inputPoint[0]);
-  targetYaw = inputDevice->get_yaw_command(targetYaw,inputPoint[1]);
+  targetPitch = inputDevice->getPitchCommand(inputPoint[0]);
+  targetYaw = inputDevice->getYawCommand(targetYaw,inputPoint[1]);
 
   if(prevState != currState){
-    stopped_command(currState);
+    stoppedCommand(currState);
   }
   prevState = currState;
 }

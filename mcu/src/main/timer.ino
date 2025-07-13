@@ -1,14 +1,7 @@
-/* 
-======================================================================
- Balancio-Kit (c) 2021 Linar (UdeSA)
- This code is licensed under MIT license (see LICENSE.txt for details)
-====================================================================== 
-*/
-
 #include "timer.h"
 #include "config.h"
 
-void timer_init(void) {
+void timerInit(void) {
    hw_timer_t *timer = NULL;
    portMUX_TYPE timerMux = portMUX_INITIALIZER_UNLOCKED;
 

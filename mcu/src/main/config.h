@@ -1,11 +1,4 @@
-/*
-======================================================================
- Balancio-Kit (c) 2021 Linar (UdeSA)
- This code is licensed under MIT license (see LICENSE.txt for details)
-======================================================================
-*/
-#ifndef CONFIG_H
-#define CONFIG_H
+#pragma once
 
 #define NEW_BOARD
 
@@ -26,19 +19,17 @@
 #define KD_YAW 0.05
 #endif
 
-// Loop period in seconds (100 Hz)
-#define LOOP_PERIOD 0.01 
+#define LOOP_PERIOD 0.01 // Loop period in seconds (100 Hz)
 
-// Calibrated point
-#define STATIC_ANGLE -0.04
+#define STATIC_ANGLE -0.04 // Calibrated point (radians)
 
-// Accelerometer offsets
+// Accelerometer offsets obtained from the calibration process
 #define X_ACCEL_OFFSET -291
-#define Y_ACCEL_OFFSET  -3307
-#define Z_ACCEL_OFFSET  961
-#define X_GYRO_OFFSET   -49
-#define Y_GYRO_OFFSET   1
-#define Z_GYRO_OFFSET   27
+#define Y_ACCEL_OFFSET -3307
+#define Z_ACCEL_OFFSET 961
+#define X_GYRO_OFFSET -49
+#define Y_GYRO_OFFSET 1
+#define Z_GYRO_OFFSET 27
 
 #define PIN_ENA 23
 #define PIN_IN1 22
@@ -56,5 +47,3 @@
 #define PIN_LEDR 13
 #define PIN_LEDG 14
 #define PIN_LEDB 12
-
-#endif

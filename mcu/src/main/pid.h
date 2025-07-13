@@ -15,12 +15,12 @@
  */
 class PID {
 private:
-  float error_;            ///< Current error value (target - current)
-  float error_sum_ = 0.0;  ///< Accumulated error sum for integral term
-  float prev_state_ = 0.0; ///< Previous state value for derivative calculation
-  float kp_, ki_, kd_;     ///< PID gains (proportional, integral, derivative)
+  float error_;           ///< Current error value (target - current)
+  float errorSum_ = 0.0;  ///< Accumulated error sum for integral term
+  float prevState_ = 0.0; ///< Previous state value for derivative calculation
+  float kp_, ki_, kd_;    ///< PID gains (proportional, integral, derivative)
   float
-      sum_constraint; ///< Maximum absolute value for integral sum (anti-windup)
+      sumConstraint_; ///< Maximum absolute value for integral sum (anti-windup)
   int out;            ///< Controller output value
 
 public:
@@ -35,10 +35,10 @@ public:
    * @param ki Integral gain - determines response to accumulated error
    * @param kd Derivative gain - determines response to rate of error
    * change
-   * @param sum_constraint Maximum absolute value for integral sum to
+   * @param sumConstraint Maximum absolute value for integral sum to
    * prevent windup
    */
-  PID(float kp, float ki, float kd, float sum_constraint);
+  PID(float kp, float ki, float kd, float sumConstraint);
 
   /**
    * @brief Updates the PID controller and calculates the control output.
@@ -59,8 +59,8 @@ public:
    * calculation. This should be called when starting control or after a
    * significant disturbance to prevent erratic behavior.
    *
-   * @param previous_state The state value to use as the previous state for
+   * @param previousState The state value to use as the previous state for
    *                      derivative calculation on the next update
    */
-  void reset(float previous_state);
+  void reset(float previousState);
 };
