@@ -1,6 +1,6 @@
 #pragma once
 
-#define NEW_BOARD
+#define BALANCIO_BOARD
 
 // PID Constants
 #ifdef NEW_BOARD
