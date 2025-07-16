@@ -3,7 +3,7 @@
 #define BALANCIO_BOARD
 
 // PID Constants
-#ifdef NEW_BOARD
+#ifdef BALANCIO_BOARD
 #define KP_PITCH 1500
 #define KI_PITCH 5000
 #define KD_PITCH 20.0

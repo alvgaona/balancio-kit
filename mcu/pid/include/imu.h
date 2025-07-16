@@ -1,6 +1,6 @@
 #pragma once
 
-#include "MPU6050_6Axis_MotionApps_V6_12.h"
+#include "MPU6050_6Axis_MotionApps612.h"
 
 class Imu {
 public:
@@ -10,8 +10,8 @@ public:
   void setup();
   void getAccelGyro(float *ay, float *az, float *gx, float *gz);
   float getAccelPitch();
-  float updatePitch(float current_angle);
-  float updateYaw(float current_yaw);
+  float updatePitch(float currentAngle);
+  float updateYaw(float currentYaw);
 
 private:
   MPU6050 mpu_;

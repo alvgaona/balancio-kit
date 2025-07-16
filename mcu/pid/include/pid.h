@@ -1,7 +1,5 @@
 #pragma once
 
-#include "config.h"
-
 /**
  * @brief PID (Proportional-Integral-Derivative) Controller implementation.
  *
@@ -50,7 +48,7 @@ public:
    * @param target_state The desired setpoint value
    * @return The calculated control output value
    */
-  float update(float current_state, float target_state);
+  float update(float currentState, float targetState);
 
   /**
    * @brief Resets the PID controller's internal state.
