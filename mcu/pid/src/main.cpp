@@ -1,11 +1,8 @@
-#include "Wire.h"
 #include "config.h"
 #include "dc_motor.h"
 #include "imu.h"
 #include "pid.h"
 #include "timer.h"
-
-volatile bool controlFlag = false;
 
 float currentPitch = 0.0;
 float targetPitch = 0.0;
@@ -19,7 +16,7 @@ int timeControl;
 bool prevState = false;
 bool currState = false;
 
-IMU *imu;
+Imu *imu;
 Motors *motors;
 PID *yawControl;
 PID *pitchControl;
@@ -38,7 +35,7 @@ void setup() {
   motors->init();
 
   // IMU init
-  imu = new IMU();
+  imu = new Imu();
   imu->setup();
 
   // Timer init. (ISR at 1/LOOP_PERIOD Hz)
@@ -49,7 +46,7 @@ void setup() {
   yawControl = new PID(KP_YAW, KI_YAW, KD_YAW, 5.0);
 
   // Angle initialization
-  currentPitch = -getAccelPitch();
+  currentPitch = -imu->getAccelPitch();
   timeControl = micros();
 
   pinMode(PIN_LEDR, OUTPUT);
@@ -57,9 +54,6 @@ void setup() {
   pinMode(PIN_LEDB, OUTPUT);
   pinMode(PIN_ENABLE_BUTTON, INPUT_PULLUP);
 }
-
-// ISR at 1/LOOP_PERIOD Hz
-void IRAM_ATTR onTime() { controlFlag = true; }
 
 void loop() {
   if (!controlFlag) {

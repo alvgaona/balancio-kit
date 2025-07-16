@@ -1,0 +1,22 @@
+CompileFlags:
+  CompilationDatabase: .
+  Remove:
+    # Remove problematic GCC-specific flags that clangd doesn't understand
+    - -fno-tree-switch-conversion
+    - -mlongcalls
+    - -fstrict-volatile-bitfields
+    - -mlong-calls
+    - -fno-jump-tables
+    - -fno-tree-switch-conversion
+    - -freorder-blocks
+  Add:
+    # Add standard C++ version for better language server support
+    - -std=c++17
+    # Essential ESP32 defines for proper code completion
+    - -DARDUINO_ARCH_ESP32
+    - -DESP32
+    - -DARDUINO=10812
+    - -DF_CPU=240000000L
+
+Index:
+  Background: Build

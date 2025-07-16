@@ -1,5 +1,7 @@
 #include "dc_motor.h"
 #include "config.h"
+#include <algorithm>
+#include <esp32-hal-gpio.h>
 
 #define L_CHANNEL 0
 #define R_CHANNEL 1
@@ -13,7 +15,7 @@ Motors::~Motors() {
   stop();
 }
 
-void Motors::init() {
+void Motors::init() const {
   // Pins configuration
   pinMode(PIN_IN1, OUTPUT);
   pinMode(PIN_IN2, OUTPUT);
@@ -24,12 +26,14 @@ void Motors::init() {
   stop();
 
   // PWM
-  ledcAttachPin(PIN_ENA, L_CHANNEL);     // (Pin, Channel)
-  ledcAttachPin(PIN_ENB, R_CHANNEL);     // (Pin, Channel)
-  ledcSetup(L_CHANNEL, pwmFrequency, 8); // (Channel, PWM frequency, bits resolution)
-  ledcSetup(R_CHANNEL, pwmFrequency, 8); // (Channel, PWM frequency, bits resolution)
-  ledcWrite(L_CHANNEL, 0);           // (channel, bits)
-  ledcWrite(R_CHANNEL, 0);           // (channel, bits)
+  ledcAttachPin(PIN_ENA, L_CHANNEL); // (Pin, Channel)
+  ledcAttachPin(PIN_ENB, R_CHANNEL); // (Pin, Channel)
+  ledcSetup(L_CHANNEL, pwmFrequency,
+            8); // (Channel, PWM frequency, bits resolution)
+  ledcSetup(R_CHANNEL, pwmFrequency,
+            8);            // (Channel, PWM frequency, bits resolution)
+  ledcWrite(L_CHANNEL, 0); // (channel, bits)
+  ledcWrite(R_CHANNEL, 0); // (channel, bits)
 }
 
 void Motors::stop() {
@@ -68,7 +72,8 @@ void Motors::fwdRightMotor(int pwm) {
 }
 
 void Motors::rightMotor(int pwm) {
-  pwm = constrain(pwm, -255.0, 255.0);
+  // Limit pwm between -255 and 255 using min/max
+  pwm = std::max(-255, std::min(pwm, 255));
   if (pwm >= 0) {
     fwdRightMotor(pwm);
   } else {
@@ -77,7 +82,8 @@ void Motors::rightMotor(int pwm) {
 }
 
 void Motors::leftMotor(int pwm) {
-  pwm = constrain(pwm, -255.0, 255.0);
+  // Limit pwm between -255 and 255 using min/max
+  pwm = std::max(-255, std::min(pwm, 255));
   if (pwm >= 0) {
     fwdLeftMotor(pwm);
   } else {
