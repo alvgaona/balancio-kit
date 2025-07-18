@@ -27,7 +27,7 @@ void Imu::setup() {
   mpu_.setZGyroOffset(Z_GYRO_OFFSET);
 }
 
-void Imu::getAccelGyro(float *ay, float *az, float *gx, float *gz) {
+void Imu::measureGyro(float *ay, float *az, float *gx, float *gz) {
 // gyro (+/- 250 deg/s) accel (+/- 2g)
 #ifdef BALANCIO_BOARD
   // Rotate coordinates (swap y and z, invert y) to compensate for rotated
@@ -45,16 +45,16 @@ void Imu::getAccelGyro(float *ay, float *az, float *gx, float *gz) {
   gz_ = 2 * 250 * (gz_b / (65535.0)); // deg/s
 }
 
-float Imu::getAccelPitch() {
-  getAccelGyro(&ay_, &az_, &gx_, &gz_);
+float Imu::measurePitch() {
+  measureGyro(&ay_, &az_, &gx_, &gz_);
   return atan2(ay_, az_);
 }
 
 float Imu::updatePitch(float currentAngle) {
   float currentAngleDeg = -currentAngle * RAD_TO_DEG;
 
-  getAccelGyro(&ay_, &az_, &gx_, &gz_);
-  accelPitch_ = getAccelPitch() * RAD_TO_DEG;
+  measureGyro(&ay_, &az_, &gx_, &gz_);
+  accelPitch_ = measurePitch() * RAD_TO_DEG;
 
   // Complementary filter between acceleration and gyroscopic pitch estimation.
   pitchDeg_ = (tau_) * (currentAngleDeg + gx_ * LOOP_PERIOD) +
@@ -65,7 +65,7 @@ float Imu::updatePitch(float currentAngle) {
 }
 
 float Imu::updateYaw(float currentYaw) {
-  getAccelGyro(&ay_, &az_, &gx_, &gz_);
+  measureGyro(&ay_, &az_, &gx_, &gz_);
 
   // Integrate angular velocity to estimate the yaw angle
   return currentYaw + gz_ * DEG_TO_RAD;

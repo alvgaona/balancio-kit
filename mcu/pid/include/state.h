@@ -5,10 +5,13 @@ public:
   State();
   ~State();
 
-  float pitch() const { return pitch_; };
-  float yaw() const { return yaw_; };
+  float pitch;
+  float yaw;
+
+  bool isPitchWithinRange() const {
+    return pitch >= -pitchLimit_ && pitch <= pitchLimit_;
+  }
 
 private:
-  float pitch_;
-  float yaw_;
+  float pitchLimit_;
 };
