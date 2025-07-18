@@ -1,6 +1,6 @@
 #pragma once
 
-volatile bool controlFlag = false;
+extern volatile bool controlFlag;
 
 /**
  * Timer initialization and configuration at 100 hz.
