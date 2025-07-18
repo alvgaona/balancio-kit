@@ -8,8 +8,8 @@ public:
   ~Imu();
 
   void setup();
-  void getAccelGyro(float *ay, float *az, float *gx, float *gz);
-  float getAccelPitch();
+  void measureGyro(float *ay, float *az, float *gx, float *gz);
+  float measurePitch();
   float updatePitch(float currentAngle);
   float updateYaw(float currentYaw);
 
