@@ -2,6 +2,9 @@
 #include "config.h"
 #include <esp32-hal-timer.h>
 
+// Definition of controlFlag
+volatile bool controlFlag = false;
+
 // ISR at 1/LOOP_PERIOD Hz
 void IRAM_ATTR onTime() { controlFlag = true; }
 
