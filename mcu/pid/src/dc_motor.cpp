@@ -6,14 +6,9 @@
 #define L_CHANNEL 0
 #define R_CHANNEL 1
 
-Motors::Motors() {
-  // Constructor implementation
-}
+Motors::Motors() {}
 
-Motors::~Motors() {
-  // Destructor implementation
-  stop();
-}
+Motors::~Motors() { stop(); }
 
 void Motors::init() const {
   // Pins configuration
